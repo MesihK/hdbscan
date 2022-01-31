@@ -48,7 +48,7 @@ def _rsl_prims_kdtree(X, k=5, alpha=1.4142135623730951, metric='euclidean',
 
     # The Cython routines used require contiguous arrays
     if not X.flags['C_CONTIGUOUS']:
-        X = np.array(X, dtype=np.double, order='C')
+        X = np.array(X, dtype=np.float32, order='C')
 
     dim = X.shape[0]
     k = min(dim - 1, k)
@@ -72,7 +72,7 @@ def _rsl_prims_balltree(X, k=5, alpha=1.4142135623730951, metric='euclidean',
 
     # The Cython routines used require contiguous arrays
     if not X.flags['C_CONTIGUOUS']:
-        X = np.array(X, dtype=np.double, order='C')
+        X = np.array(X, dtype=np.float32, order='C')
 
     dim = X.shape[0]
     k = min(dim - 1, k)

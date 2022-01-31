@@ -65,14 +65,14 @@ cpdef sparse_mutual_reachability(object lil_matrix, np.intp_t min_points=5,
     cdef np.intp_t i
     cdef np.intp_t j
     cdef np.intp_t n
-    cdef np.double_t mr_dist
+    cdef np.float32_t mr_dist
     cdef list sorted_row_data
-    cdef np.ndarray[dtype=np.double_t, ndim=1] core_distance
+    cdef np.ndarray[dtype=np.float32_t, ndim=1] core_distance
     cdef np.ndarray[dtype=np.int32_t, ndim=1] nz_row_data
     cdef np.ndarray[dtype=np.int32_t, ndim=1] nz_col_data
 
     result = sparse_matrix(lil_matrix.shape)
-    core_distance = np.empty(lil_matrix.shape[0], dtype=np.double)
+    core_distance = np.empty(lil_matrix.shape[0], dtype=np.float32)
 
     for i in range(lil_matrix.shape[0]):
         sorted_row_data = sorted(lil_matrix.data[i])
@@ -140,9 +140,9 @@ def balltree_mutual_reachability(X, distance_matrix, metric, p=2, min_points=5,
     return result
 
 
-cdef np.ndarray[np.double_t, ndim=1] mutual_reachability_from_pdist(
-        np.ndarray[np.double_t, ndim=1] core_distances,
-        np.ndarray[np.double_t, ndim=1] dists, np.intp_t dim):
+cdef np.ndarray[np.float32_t, ndim=1] mutual_reachability_from_pdist(
+        np.ndarray[np.float32_t, ndim=1] core_distances,
+        np.ndarray[np.float32_t, ndim=1] dists, np.intp_t dim):
 
     cdef np.intp_t i
     cdef np.intp_t j

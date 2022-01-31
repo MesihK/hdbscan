@@ -22,20 +22,20 @@ cpdef get_tree_row_with_child(np.ndarray tree, np.intp_t child):
 
     return tree[0]
 
-cdef np.float64_t min_dist_to_exemplar(
-                        np.ndarray[np.float64_t, ndim=1] point,
-                        np.ndarray[np.float64_t, ndim=2] cluster_exemplars,
+cdef np.float32_t min_dist_to_exemplar(
+                        np.ndarray[np.float32_t, ndim=1] point,
+                        np.ndarray[np.float32_t, ndim=2] cluster_exemplars,
                         DistanceMetric dist_metric):
 
     cdef np.intp_t i
-    cdef np.float64_t result = DBL_MAX
-    cdef np.float64_t distance
-    cdef np.float64_t *point_ptr = (<np.float64_t *> point.data)
-    cdef np.float64_t[:, ::1] exemplars_view = \
-        (<np.float64_t [:cluster_exemplars.shape[0], :cluster_exemplars.shape[1]:1]>
-            (<np.float64_t *> cluster_exemplars.data))
-    cdef np.float64_t *exemplars_ptr = \
-        (<np.float64_t *> &exemplars_view[0, 0])
+    cdef np.float32_t result = DBL_MAX
+    cdef np.float32_t distance
+    cdef np.float32_t *point_ptr = (<np.float32_t *> point.data)
+    cdef np.float32_t[:, ::1] exemplars_view = \
+        (<np.float32_t [:cluster_exemplars.shape[0], :cluster_exemplars.shape[1]:1]>
+            (<np.float32_t *> cluster_exemplars.data))
+    cdef np.float32_t *exemplars_ptr = \
+        (<np.float32_t *> &exemplars_view[0, 0])
     cdef np.intp_t num_features = point.shape[0]
 
     for i in range(cluster_exemplars.shape[0]):
@@ -47,14 +47,14 @@ cdef np.float64_t min_dist_to_exemplar(
 
     return result
 
-cdef np.ndarray[np.float64_t, ndim=1] dist_vector(
-                    np.ndarray[np.float64_t, ndim=1] point,
+cdef np.ndarray[np.float32_t, ndim=1] dist_vector(
+                    np.ndarray[np.float32_t, ndim=1] point,
                     list exemplars_list,
                     DistanceMetric dist_metric):
 
     cdef np.intp_t i
-    cdef np.ndarray[np.float64_t, ndim=2] exemplars
-    cdef np.ndarray[np.float64_t, ndim=1] result = np.empty(len(exemplars_list))
+    cdef np.ndarray[np.float32_t, ndim=2] exemplars
+    cdef np.ndarray[np.float32_t, ndim=1] result = np.empty(len(exemplars_list))
 
 
     for i in range(len(exemplars_list)):
@@ -63,16 +63,16 @@ cdef np.ndarray[np.float64_t, ndim=1] dist_vector(
 
     return result
 
-cpdef np.ndarray[np.float64_t, ndim=1] dist_membership_vector(
-                    np.ndarray[np.float64_t, ndim=1] point,
+cpdef np.ndarray[np.float32_t, ndim=1] dist_membership_vector(
+                    np.ndarray[np.float32_t, ndim=1] point,
                     list exemplars_list,
                     DistanceMetric dist_metric,
                     softmax=False):
 
     cdef np.intp_t i
-    cdef np.ndarray[np.float64_t, ndim=1] result = np.empty(len(exemplars_list))
-    cdef np.ndarray[np.float64_t, ndim=1] vector
-    cdef np.float64_t sum = 0.0
+    cdef np.ndarray[np.float32_t, ndim=1] result = np.empty(len(exemplars_list))
+    cdef np.ndarray[np.float32_t, ndim=1] vector
+    cdef np.float32_t sum = 0.0
 
     vector = dist_vector(point, exemplars_list, dist_metric)
 
@@ -95,17 +95,17 @@ cpdef np.ndarray[np.float64_t, ndim=1] dist_membership_vector(
 
     return result
 
-cpdef np.ndarray[np.float64_t, ndim=2] all_points_dist_membership_vector(
-        np.ndarray[np.float64_t, ndim=2] all_points,
+cpdef np.ndarray[np.float32_t, ndim=2] all_points_dist_membership_vector(
+        np.ndarray[np.float32_t, ndim=2] all_points,
         list exemplars_list,
         DistanceMetric dist_metric,
         softmax=False):
 
-    cdef np.ndarray[np.float64_t, ndim=2] result
+    cdef np.ndarray[np.float32_t, ndim=2] result
     cdef np.intp_t i
 
     result = np.empty((all_points.shape[0], len(exemplars_list)),
-                      dtype=np.float64)
+                      dtype=np.float32)
 
     for i in range(all_points.shape[0]):
         result[i] = dist_membership_vector(all_points[i],
@@ -115,9 +115,9 @@ cpdef np.ndarray[np.float64_t, ndim=2] all_points_dist_membership_vector(
 
     return result
 
-cdef np.ndarray[np.float64_t, ndim=1] merge_height(
+cdef np.ndarray[np.float32_t, ndim=1] merge_height(
         np.intp_t point_cluster,
-        np.float64_t point_lambda,
+        np.float32_t point_lambda,
         np.ndarray[np.intp_t, ndim=1] clusters,
         np.ndarray cluster_tree):
 
@@ -130,16 +130,16 @@ cdef np.ndarray[np.float64_t, ndim=1] merge_height(
     cdef int took_left_parent
     cdef np.intp_t cluster
 
-    cdef np.ndarray[np.float64_t, ndim=1] result = np.empty(clusters.shape[0],
-                                                            dtype=np.float64)
+    cdef np.ndarray[np.float32_t, ndim=1] result = np.empty(clusters.shape[0],
+                                                            dtype=np.float32)
     cdef np.ndarray[np.intp_t, ndim=1] parents
     cdef np.ndarray[np.intp_t, ndim=1] children
-    cdef np.ndarray[np.float64_t, ndim=1] lambdas
+    cdef np.ndarray[np.float32_t, ndim=1] lambdas
 
     # convert the cluster tree for fast direct access
     parents = cluster_tree['parent'].astype(np.intp)
     children = cluster_tree['child'].astype(np.intp)
-    lambdas = cluster_tree['lambda_val'].astype(np.float64)
+    lambdas = cluster_tree['lambda_val'].astype(np.float32)
 
 
     for i in range(clusters.shape[0]):
@@ -182,9 +182,9 @@ cdef np.ndarray[np.float64_t, ndim=1] merge_height(
     return result
 
 
-cpdef np.float64_t safe_always_positive_division(
-        np.float64_t numerator,
-        np.float64_t denominator):
+cpdef np.float32_t safe_always_positive_division(
+        np.float32_t numerator,
+        np.float32_t denominator):
     """ This is a helper function to divide numbers safely without getting a ZeroDivision error, the
     function handles zero division by assuming the denominator is always positive 
     
@@ -205,7 +205,7 @@ cpdef np.float64_t safe_always_positive_division(
     return numerator / denominator
 
 
-cpdef np.ndarray[np.float64_t, ndim=1] per_cluster_scores(
+cpdef np.ndarray[np.float32_t, ndim=1] per_cluster_scores(
         np.intp_t neighbor,
         np.float32_t lambda_,
         np.ndarray[np.intp_t, ndim=1] clusters,
@@ -214,12 +214,12 @@ cpdef np.ndarray[np.float64_t, ndim=1] per_cluster_scores(
         np.ndarray cluster_tree):
 
     cdef np.intp_t point_cluster
-    cdef np.float64_t point_lambda
-    cdef np.float64_t max_lambda
+    cdef np.float32_t point_lambda
+    cdef np.float32_t max_lambda
 
     cdef np.intp_t i
 
-    cdef np.ndarray[np.float64_t, ndim=1] result
+    cdef np.ndarray[np.float32_t, ndim=1] result
 
     point_row = get_tree_row_with_child(tree, neighbor)
     point_cluster = point_row['parent']
@@ -239,11 +239,11 @@ cpdef np.ndarray[np.float64_t, ndim=1] per_cluster_scores(
 
     return result
 
-cpdef np.ndarray[np.float64_t, ndim=1] outlier_membership_vector(neighbor,
+cpdef np.ndarray[np.float32_t, ndim=1] outlier_membership_vector(neighbor,
             lambda_, clusters, tree, max_lambda_dict, cluster_tree,
             softmax=True):
 
-    cdef np.ndarray[np.float64_t, ndim=1] result
+    cdef np.ndarray[np.float32_t, ndim=1] result
 
     if softmax:
         result = per_cluster_scores(neighbor, lambda_, clusters, tree,
@@ -251,7 +251,7 @@ cpdef np.ndarray[np.float64_t, ndim=1] outlier_membership_vector(neighbor,
         # Scale for numerical stability, mathematically equivalent with old
         # version due to the scaling with the sum in below.
         result = np.exp(result - np.nanmax(result))
-        #result[~np.isfinite(result)] = np.finfo(np.double).max
+        #result[~np.isfinite(result)] = np.finfo(np.float32).max
     else:
         result = per_cluster_scores(neighbor, lambda_, clusters, tree,
                                     max_lambda_dict, cluster_tree)
@@ -259,14 +259,14 @@ cpdef np.ndarray[np.float64_t, ndim=1] outlier_membership_vector(neighbor,
     result /= result.sum()
     return result
 
-cpdef np.float64_t prob_in_some_cluster(neighbor, lambda_, clusters, tree,
+cpdef np.float32_t prob_in_some_cluster(neighbor, lambda_, clusters, tree,
             max_lambda_dict, cluster_tree):
 
-    cdef np.ndarray[np.float64_t, ndim=1] cluster_merge_heights
+    cdef np.ndarray[np.float32_t, ndim=1] cluster_merge_heights
 
     cdef np.intp_t point_cluster
-    cdef np.float64_t point_lambda
-    cdef np.float64_t max_lambda
+    cdef np.float32_t point_lambda
+    cdef np.float32_t max_lambda
 
     point_row = get_tree_row_with_child(tree, neighbor)
     point_cluster = point_row['parent']
@@ -281,25 +281,25 @@ cpdef np.float64_t prob_in_some_cluster(neighbor, lambda_, clusters, tree,
 
     return (point_height / max_lambda)
 
-cpdef np.ndarray[np.float64_t, ndim=2] all_points_per_cluster_scores(
+cpdef np.ndarray[np.float32_t, ndim=2] all_points_per_cluster_scores(
         np.ndarray[np.intp_t, ndim=1] clusters,
         np.ndarray tree,
         dict max_lambda_dict,
         np.ndarray cluster_tree):
 
     cdef np.intp_t num_points = tree['parent'].min()
-    cdef np.ndarray[np.float64_t, ndim=2] result_arr
-    cdef np.float64_t[:, ::1] result
+    cdef np.ndarray[np.float32_t, ndim=2] result_arr
+    cdef np.float32_t[:, ::1] result
     cdef np.intp_t point
     cdef np.intp_t point_cluster
-    cdef np.float64_t point_lambda
-    cdef np.float64_t max_lambda
+    cdef np.float32_t point_lambda
+    cdef np.float32_t max_lambda
 
     cdef np.intp_t i, j
 
-    result_arr = np.empty((num_points, clusters.shape[0]), dtype=np.float64)
-    result = (<np.float64_t [:num_points, :clusters.shape[0]:1]>
-                 (<np.float64_t *> result_arr.data))
+    result_arr = np.empty((num_points, clusters.shape[0]), dtype=np.float32)
+    result = (<np.float32_t [:num_points, :clusters.shape[0]:1]>
+                 (<np.float32_t *> result_arr.data))
 
     point_tree = tree[tree['child_size'] == 1]
 
@@ -320,14 +320,14 @@ cpdef np.ndarray[np.float64_t, ndim=2] all_points_per_cluster_scores(
 
     return result_arr
 
-cpdef np.ndarray[np.float64_t, ndim=2] all_points_outlier_membership_vector(
+cpdef np.ndarray[np.float32_t, ndim=2] all_points_outlier_membership_vector(
         np.ndarray[np.intp_t, ndim=1] clusters,
         np.ndarray tree,
         dict max_lambda_dict,
         np.ndarray cluster_tree,
         np.intp_t softmax=True):
 
-    cdef np.ndarray[np.float64_t, ndim=2] per_cluster_scores
+    cdef np.ndarray[np.float32_t, ndim=2] per_cluster_scores
 
     per_cluster_scores = all_points_per_cluster_scores(
                                 clusters,
@@ -338,7 +338,7 @@ cpdef np.ndarray[np.float64_t, ndim=2] all_points_outlier_membership_vector(
         # Scale for numerical stability, mathematically equivalent with old
         # version due to the scaling with the sum in below.
         result = np.exp(per_cluster_scores - np.nanmax(per_cluster_scores))
-        #result[~np.isfinite(result)] = np.finfo(np.double).max
+        #result[~np.isfinite(result)] = np.finfo(np.float32).max
     else:
         result = per_cluster_scores
 
@@ -353,17 +353,17 @@ cpdef all_points_prob_in_some_cluster(
         dict max_lambda_dict,
         np.ndarray cluster_tree):
 
-    cdef np.ndarray[np.float64_t, ndim=1] heights
+    cdef np.ndarray[np.float32_t, ndim=1] heights
     cdef np.intp_t num_points = tree['parent'].min()
-    cdef np.ndarray[np.float64_t, ndim=1] result
+    cdef np.ndarray[np.float32_t, ndim=1] result
     cdef np.intp_t point
     cdef np.intp_t point_cluster
-    cdef np.float64_t point_lambda
-    cdef np.float64_t max_lambda
+    cdef np.float32_t point_lambda
+    cdef np.float32_t max_lambda
 
     cdef np.intp_t i
 
-    result = np.empty(num_points, dtype=np.float64)
+    result = np.empty(num_points, dtype=np.float32)
 
     point_tree = tree[tree['child_size'] == 1]
 

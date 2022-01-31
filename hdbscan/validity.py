@@ -319,8 +319,8 @@ def validity_index(X, labels, metric='euclidean',
 
     max_cluster_id = labels.max() + 1
     density_sep = np.inf * np.ones((max_cluster_id, max_cluster_id),
-                                   dtype=np.float64)
-    cluster_validity_indices = np.empty(max_cluster_id, dtype=np.float64)
+                                   dtype=np.float32)
+    cluster_validity_indices = np.empty(max_cluster_id, dtype=np.float32)
 
     for cluster_id in range(max_cluster_id):
 

@@ -12,16 +12,16 @@ from libc.float cimport DBL_MAX
 from dist_metrics cimport DistanceMetric
 
 
-cpdef np.ndarray[np.double_t, ndim=2] mst_linkage_core(
-                               np.ndarray[np.double_t,
+cpdef np.ndarray[np.float32_t, ndim=2] mst_linkage_core(
+                               np.ndarray[np.float32_t,
                                           ndim=2] distance_matrix):
 
     cdef np.ndarray[np.intp_t, ndim=1] node_labels
     cdef np.ndarray[np.intp_t, ndim=1] current_labels
-    cdef np.ndarray[np.double_t, ndim=1] current_distances
-    cdef np.ndarray[np.double_t, ndim=1] left
-    cdef np.ndarray[np.double_t, ndim=1] right
-    cdef np.ndarray[np.double_t, ndim=2] result
+    cdef np.ndarray[np.float32_t, ndim=1] current_distances
+    cdef np.ndarray[np.float32_t, ndim=1] left
+    cdef np.ndarray[np.float32_t, ndim=1] right
+    cdef np.ndarray[np.float32_t, ndim=2] result
 
     cdef np.ndarray label_filter
 
@@ -30,10 +30,10 @@ cpdef np.ndarray[np.double_t, ndim=2] mst_linkage_core(
     cdef np.intp_t new_node
     cdef np.intp_t i
 
-    result = np.zeros((distance_matrix.shape[0] - 1, 3))
+    result = np.zeros((distance_matrix.shape[0] - 1, 3), dtype=np.float32)
     node_labels = np.arange(distance_matrix.shape[0], dtype=np.intp)
     current_node = 0
-    current_distances = np.infty * np.ones(distance_matrix.shape[0])
+    current_distances = np.infty * np.ones(distance_matrix.shape[0], dtype=np.float32)
     current_labels = node_labels
     for i in range(1, node_labels.shape[0]):
         label_filter = current_labels != current_node
@@ -52,25 +52,25 @@ cpdef np.ndarray[np.double_t, ndim=2] mst_linkage_core(
     return result
 
 
-cpdef np.ndarray[np.double_t, ndim=2] mst_linkage_core_vector(
-        np.ndarray[np.double_t, ndim=2, mode='c'] raw_data,
-        np.ndarray[np.double_t, ndim=1, mode='c'] core_distances,
+cpdef np.ndarray[np.float32_t, ndim=2] mst_linkage_core_vector(
+        np.ndarray[np.float32_t, ndim=2, mode='c'] raw_data,
+        np.ndarray[np.float32_t, ndim=1, mode='c'] core_distances,
         DistanceMetric dist_metric,
-        np.double_t alpha=1.0):
+        np.float32_t alpha=1.0):
 
     # Add a comment
-    cdef np.ndarray[np.double_t, ndim=1] current_distances_arr
-    cdef np.ndarray[np.double_t, ndim=1] current_sources_arr
+    cdef np.ndarray[np.float32_t, ndim=1] current_distances_arr
+    cdef np.ndarray[np.float32_t, ndim=1] current_sources_arr
     cdef np.ndarray[np.int8_t, ndim=1] in_tree_arr
-    cdef np.ndarray[np.double_t, ndim=2] result_arr
+    cdef np.ndarray[np.float32_t, ndim=2] result_arr
 
-    cdef np.double_t * current_distances
-    cdef np.double_t * current_sources
-    cdef np.double_t * current_core_distances
-    cdef np.double_t * raw_data_ptr
+    cdef np.float32_t * current_distances
+    cdef np.float32_t * current_sources
+    cdef np.float32_t * current_core_distances
+    cdef np.float32_t * raw_data_ptr
     cdef np.int8_t * in_tree
-    cdef np.double_t[:, ::1] raw_data_view
-    cdef np.double_t[:, ::1] result
+    cdef np.float32_t[:, ::1] raw_data_view
+    cdef np.float32_t[:, ::1] result
 
     cdef np.ndarray label_filter
 
@@ -93,9 +93,9 @@ cpdef np.ndarray[np.double_t, ndim=2] mst_linkage_core_vector(
     dim = raw_data.shape[0]
     num_features = raw_data.shape[1]
 
-    raw_data_view = (<np.double_t[:raw_data.shape[0], :raw_data.shape[1]:1]> (
-        <np.double_t *> raw_data.data))
-    raw_data_ptr = (<np.double_t *> &raw_data_view[0, 0])
+    raw_data_view = (<np.float32_t[:raw_data.shape[0], :raw_data.shape[1]:1]> (
+        <np.float32_t *> raw_data.data))
+    raw_data_ptr = (<np.float32_t *> &raw_data_view[0, 0])
 
     result_arr = np.zeros((dim - 1, 3))
     in_tree_arr = np.zeros(dim, dtype=np.int8)
@@ -103,11 +103,11 @@ cpdef np.ndarray[np.double_t, ndim=2] mst_linkage_core_vector(
     current_distances_arr = np.infty * np.ones(dim)
     current_sources_arr = np.ones(dim)
 
-    result = (<np.double_t[:dim - 1, :3:1]> (<np.double_t *> result_arr.data))
+    result = (<np.float32_t[:dim - 1, :3:1]> (<np.float32_t *> result_arr.data))
     in_tree = (<np.int8_t *> in_tree_arr.data)
-    current_distances = (<np.double_t *> current_distances_arr.data)
-    current_sources = (<np.double_t *> current_sources_arr.data)
-    current_core_distances = (<np.double_t *> core_distances.data)
+    current_distances = (<np.float32_t *> current_distances_arr.data)
+    current_sources = (<np.float32_t *> current_sources_arr.data)
+    current_core_distances = (<np.float32_t *> core_distances.data)
 
     for i in range(1, dim):
 
@@ -209,17 +209,17 @@ cdef class UnionFind (object):
         return n
 
 
-cpdef np.ndarray[np.double_t, ndim=2] label(np.ndarray[np.double_t, ndim=2] L):
+cpdef np.ndarray[np.float32_t, ndim=2] label(np.ndarray[np.float32_t, ndim=2] L):
 
-    cdef np.ndarray[np.double_t, ndim=2] result_arr
-    cdef np.double_t[:, ::1] result
+    cdef np.ndarray[np.float32_t, ndim=2] result_arr
+    cdef np.float32_t[:, ::1] result
 
     cdef np.intp_t N, a, aa, b, bb, index
-    cdef np.double_t delta
+    cdef np.float32_t delta
 
-    result_arr = np.zeros((L.shape[0], L.shape[1] + 1))
-    result = (<np.double_t[:L.shape[0], :4:1]> (
-        <np.double_t *> result_arr.data))
+    result_arr = np.zeros((L.shape[0], L.shape[1] + 1), dtype=np.float32)
+    result = (<np.float32_t[:L.shape[0], :4:1]> (
+        <np.float32_t *> result_arr.data))
     N = L.shape[0] + 1
     U = UnionFind(N)
 
@@ -241,10 +241,10 @@ cpdef np.ndarray[np.double_t, ndim=2] label(np.ndarray[np.double_t, ndim=2] L):
     return result_arr
 
 
-cpdef np.ndarray[np.double_t, ndim=2] single_linkage(distance_matrix):
+cpdef np.ndarray[np.float32_t, ndim=2] single_linkage(distance_matrix):
 
-    cdef np.ndarray[np.double_t, ndim=2] hierarchy
-    cdef np.ndarray[np.double_t, ndim=2] for_labelling
+    cdef np.ndarray[np.float32_t, ndim=2] hierarchy
+    cdef np.ndarray[np.float32_t, ndim=2] for_labelling
 
     hierarchy = mst_linkage_core(distance_matrix)
     for_labelling = hierarchy[np.argsort(hierarchy.T[2]), :]

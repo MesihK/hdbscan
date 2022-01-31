@@ -332,7 +332,7 @@ def approximate_predict_flat(clusterer,
             return labels, probabilities
 
     labels = np.empty(points_to_predict.shape[0], dtype=np.int32)
-    probabilities = np.empty(points_to_predict.shape[0], dtype=np.float64)
+    probabilities = np.empty(points_to_predict.shape[0], dtype=np.float32)
 
     min_samples = clusterer.min_samples or clusterer.min_cluster_size
     neighbor_distances, neighbor_indices = prediction_data.tree.query(
@@ -409,7 +409,7 @@ def membership_vector_flat(
     :py:func:`hdbscan.predict.membership_vector`
     :py:func:`hdbscan.predict.all_points_membership_vectors`
     """
-    points_to_predict = points_to_predict.astype(np.float64)
+    points_to_predict = points_to_predict.astype(np.float32)
     # Extract condensed tree for later use
     condensed_tree = clusterer.condensed_tree_
 
@@ -446,7 +446,7 @@ def membership_vector_flat(
 
     # Initialize probabilities
     result = np.empty((points_to_predict.shape[0], clusters.shape[0]),
-                      dtype=np.float64)
+                      dtype=np.float32)
 
     # k-NN for prediciton points to training set
     min_samples = clusterer.min_samples or clusterer.min_cluster_size

@@ -97,7 +97,7 @@ class PredictionData(object):
 
     def __init__(self, data, condensed_tree, min_samples,
                  tree_type='kdtree', metric='euclidean', **kwargs):
-        self.raw_data = data.astype(np.float64)
+        self.raw_data = data.astype(np.float32)
         self.tree = self._tree_type_map[tree_type](self.raw_data,
                                                    metric=metric, **kwargs)
         self.core_distances = self.tree.query(data, k=min_samples)[0][:, -1]
@@ -188,7 +188,7 @@ def _find_neighbor_and_lambda(neighbor_indices, neighbor_distances,
     if mr_distances[nn_index] > 0.0:
         lambda_ = 1. / mr_distances[nn_index]
     else:
-        lambda_ = np.finfo(np.double).max
+        lambda_ = np.finfo(np.float32).max
 
     return nearest_neighbor, lambda_
 
@@ -386,7 +386,7 @@ def approximate_predict(clusterer, points_to_predict):
         return labels, probabilities
 
     labels = np.empty(points_to_predict.shape[0], dtype=np.int32)
-    probabilities = np.empty(points_to_predict.shape[0], dtype=np.float64)
+    probabilities = np.empty(points_to_predict.shape[0], dtype=np.float32)
 
     min_samples = clusterer.min_samples or clusterer.min_cluster_size
     neighbor_distances, neighbor_indices = \
@@ -465,7 +465,7 @@ def approximate_predict_scores(clusterer, points_to_predict):
         scores = np.ones(points_to_predict.shape[0], dtype=np.int32)
         return scores
 
-    scores = np.empty(points_to_predict.shape[0], dtype=np.float64)
+    scores = np.empty(points_to_predict.shape[0], dtype=np.float32)
 
     min_samples = clusterer.min_samples or clusterer.min_cluster_size
     neighbor_distances, neighbor_indices = \
@@ -545,12 +545,12 @@ def membership_vector(clusterer, points_to_predict):
     :py:func:`hdbscan.predict.all_points_membership_vectors`
 """
 
-    points_to_predict = points_to_predict.astype(np.float64)
+    points_to_predict = points_to_predict.astype(np.float32)
     clusters = np.array(
         sorted(list(clusterer.condensed_tree_._select_clusters()))).astype(np.intp)
 
     result = np.empty((points_to_predict.shape[0], clusters.shape[0]),
-                      dtype=np.float64)
+                      dtype=np.float32)
 
     min_samples = clusterer.min_samples or clusterer.min_cluster_size
     neighbor_distances, neighbor_indices = \

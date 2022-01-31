@@ -11,7 +11,7 @@ cimport numpy as np
 
 from libc.math cimport fabs, sqrt, exp, cos, pow
 
-ctypedef np.double_t DTYPE_t
+ctypedef np.float32_t DTYPE_t
 ctypedef np.intp_t ITYPE_t
 
 cdef enum:
@@ -25,7 +25,7 @@ ctypedef fused DITYPE_t:
 
 ITYPE = np.intp
 
-DTYPE = np.double
+DTYPE = np.float32
 
 ######################################################################
 # Inline distance functions
