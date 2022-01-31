@@ -96,10 +96,13 @@ def _hdbscan_generic(
         #   matrix to indicate missing distance information.
         # TODO: Check if copying is necessary
         distance_matrix = X
+    elif metric == "mutualreachability":
+        # Precomputed mutalreachability
+        mutual_reachability_  = X
     else:
         distance_matrix = pairwise_distances(X, metric=metric, **kwargs)
 
-    if issparse(distance_matrix):
+    if metric != "mutualreachability" and issparse(distance_matrix):
         # raise TypeError('Sparse distance matrices not yet supported')
         return _hdbscan_sparse_distance_matrix(
             distance_matrix,
@@ -111,8 +114,8 @@ def _hdbscan_generic(
             gen_min_span_tree,
             **kwargs
         )
-
-    mutual_reachability_ = mutual_reachability(distance_matrix, min_samples, alpha)
+    if metric != "mutualreachability":
+        mutual_reachability_ = mutual_reachability(distance_matrix, min_samples, alpha)
 
     min_spanning_tree = mst_linkage_core(mutual_reachability_)
 
